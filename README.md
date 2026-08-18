@@ -111,7 +111,7 @@ Diese Engine liefert:
 
 ## API-Referenz
 
-### `POST /api/v1/models/train`
+### `POST /api/train`
 
 Trainiert ein Modell auf uebergebenen Antraegen.
 
@@ -119,11 +119,12 @@ Trainiert ein Modell auf uebergebenen Antraegen.
 ```json
 {
   "algorithm": "LOGISTIC_REGRESSION",
+  "seed": 7,
   "applications": [
     { "age": 34, "income": 48000, "debt": 12000, "employmentYears": 5,
-      "purpose": "CAR", "default": false },
+      "purpose": "CAR", "defaulted": false },
     { "age": 51, "income": 31000, "debt": 28000, "employmentYears": 1,
-      "purpose": "OTHER", "default": true }
+      "purpose": "OTHER", "defaulted": true }
   ]
 }
 ```
@@ -132,27 +133,30 @@ Trainiert ein Modell auf uebergebenen Antraegen.
 ```json
 {
   "algorithm": "LOGISTIC_REGRESSION",
-  "trainedAt": "2026-08-16T19:00:00Z",
-  "metrics": {
-    "accuracy": 0.82,
-    "precision": 0.79,
-    "recall": 0.74,
-    "f1": 0.76,
-    "rocAuc": 0.88,
-    "prAuc": 0.71,
-    "ks": 0.61,
-    "gini": 0.76
-  }
+  "auc": 0.88,
+  "prAuc": 0.71,
+  "ks": 0.61,
+  "gini": 0.76,
+  "accuracy": 0.82,
+  "precision": 0.79,
+  "recall": 0.74,
+  "f1": 0.76,
+  "confusion": { "tp": 12, "fp": 3, "tn": 30, "fn": 5 }
 }
 ```
 
-### Weitere Endpunkte
+### `POST /api/score`
 
-- `POST /api/v1/models/score` – Einzelbewertung einer Anfrage
-- `POST /api/v1/models/evaluate` – Metriken auf einem Testdatensatz
-- `GET /health` – Actuator Health-Check
-- `GET /v3/api-docs` – OpenAPI-Spezifikation (JSON)
-- `GET /swagger-ui.html` – interaktive API-Dokumentation
+Bewertet eine einzelne Anfrage und liefert PD, Rating und Ablehnungsflag.
+
+```json
+{ "age": 30, "income": 80000, "debt": 1000, "employmentYears": 5, "purpose": "CAR" }
+```
+
+**Response:**
+```json
+{ "probability": 0.12, "rating": "A", "declined": false }
+```
 
 ---
 
