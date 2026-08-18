@@ -2,6 +2,8 @@ package io.github.muaiso.kreditrisiko.engine.models;
 
 import io.github.muaiso.kreditrisiko.domain.LoanApplication;
 
+import io.github.muaiso.kreditrisiko.engine.FeatureAggregator;
+
 import java.util.List;
 
 /**
