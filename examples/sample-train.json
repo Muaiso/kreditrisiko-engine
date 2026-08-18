@@ -1,0 +1,12 @@
+{
+  "name": "Beispiel-Trainingsdatensatz",
+  "algorithm": "LOGISTIC_REGRESSION",
+  "applications": [
+    { "age": 34, "income": 48000, "debt": 12000, "employmentYears": 5, "purpose": "CAR", "default": false },
+    { "age": 51, "income": 31000, "debt": 28000, "employmentYears": 1, "purpose": "OTHER", "default": true },
+    { "age": 28, "income": 62000, "debt": 8000, "employmentYears": 7, "purpose": "HOUSE", "default": false },
+    { "age": 44, "income": 38000, "debt": 22000, "employmentYears": 2, "purpose": "CAR", "default": true },
+    { "age": 39, "income": 54000, "debt": 15000, "employmentYears": 4, "purpose": "EDUCATION", "default": false },
+    { "age": 57, "income": 29000, "debt": 31000, "employmentYears": 1, "purpose": "OTHER", "default": true }
+  ]
+}
