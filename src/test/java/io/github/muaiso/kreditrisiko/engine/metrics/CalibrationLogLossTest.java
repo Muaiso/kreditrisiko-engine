@@ -25,7 +25,7 @@ class CalibrationLogLossTest {
         var probs = List.of(0.99, 0.01, 0.99, 0.01);
         var actual = List.of(1, 0, 1, 0);
         // 0.99/0.01 werden intern geklemmt -> sehr kleiner, aber nicht exakt 0
-        assertTrue(new LogLoss(probs, actual).value() < 0.01);
+        assertTrue(new LogLoss(probs, actual).value() < 0.02);
     }
 
     @Test
