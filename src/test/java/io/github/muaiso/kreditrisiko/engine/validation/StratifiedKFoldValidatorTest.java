@@ -37,8 +37,8 @@ class StratifiedKFoldValidatorTest {
             long testPos = fold.testIndices().stream()
                     .filter(i -> data.get(i).defaulted()).count();
             long testNeg = fold.testIndices().size() - testPos;
-            // 50/50 Daten -> in jedem Fold ~50/50
-            assertEquals(10, testPos + testNeg); // 100/5 = 20 Test, hier 10+10
+            // 50/50 Daten, k=5 -> pro Fold 10 pos + 10 neg = 20 Test
+            assertEquals(20, testPos + testNeg);
             assertTrue(testPos > 0 && testNeg > 0, "beide Klassen im Test-Fold");
         });
     }

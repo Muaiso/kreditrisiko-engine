@@ -20,15 +20,16 @@ class KFoldHoldoutValidatorTest {
         var v = new KFoldCrossValidator(5, 42L);
         int total = 100;
         Set<Integer> allTest = new HashSet<>();
-        int folds = 0;
+        int[] foldCount = {0};
         v.validate(fold -> {
             // Train + Test = alle Indizes, disjunkt
             assertEquals(total, fold.trainIndices().size() + fold.testIndices().size());
             allTest.addAll(fold.testIndices());
+            foldCount[0]++;
         }, total);
-        // 5 Folds à 20 Test -> 100 unterschiedliche Test-Indizes
+        // 5 Folds a 20 Test -> 100 unterschiedliche Test-Indizes
         assertEquals(100, allTest.size());
-        assertEquals(5, folds + 4); // schwacher Check, unten praeziser
+        assertEquals(5, foldCount[0]);
     }
 
     @Test
