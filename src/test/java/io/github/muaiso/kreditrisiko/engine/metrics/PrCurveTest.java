@@ -13,7 +13,7 @@ import java.util.List;
 class PrCurveTest {
 
     @Test
-    void perfectSeparatorHasPrAucOne() {
+    void prAucOneForPerfectSeparator() {
         var scores = List.of(0.9, 0.8, 0.2, 0.1);
         var actual = List.of(1, 1, 0, 0);
         var pr = new PrCurve(scores, actual);
@@ -22,7 +22,8 @@ class PrCurveTest {
 
     @Test
     void prAucBelowOneForImperfect() {
-        var scores = List.of(0.5, 0.4, 0.6, 0.3);
+        // nicht perfekt trennbar: ein positiver Score tiefer als ein negativer
+        var scores = List.of(0.9, 0.4, 0.6, 0.7);
         var actual = List.of(1, 0, 1, 0);
         var pr = new PrCurve(scores, actual);
         assertTrue(pr.prAuc() > 0.0 && pr.prAuc() < 1.0);

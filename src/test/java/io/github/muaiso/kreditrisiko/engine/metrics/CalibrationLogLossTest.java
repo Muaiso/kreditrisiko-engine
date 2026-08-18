@@ -20,10 +20,11 @@ class CalibrationLogLossTest {
     }
 
     @Test
-    void logLossPerfectIsZero() {
+    void logLossNearZeroForConfidentCorrect() {
         var probs = List.of(0.99, 0.01, 0.99, 0.01);
         var actual = List.of(1, 0, 1, 0);
-        assertEquals(0.0, new LogLoss(probs, actual).value(), 1e-6);
+        // 0.99/0.01 werden intern geklemmt -> sehr kleiner, aber nicht exakt 0
+        assertTrue(new LogLoss(probs, actual).value() < 0.01);
     }
 
     @Test
