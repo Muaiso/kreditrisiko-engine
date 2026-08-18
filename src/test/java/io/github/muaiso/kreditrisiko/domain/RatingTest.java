@@ -20,7 +20,8 @@ class RatingTest {
     @Test
     void highPdIsDefault() {
         assertEquals(Rating.D, Rating.fromPd(0.99));
-        assertEquals(Rating.C, Rating.fromPd(0.5));
+        // PD 0.5 liegt ueber der C-Grenze (0.30) -> D
+        assertEquals(Rating.D, Rating.fromPd(0.5));
     }
 
     @Test
