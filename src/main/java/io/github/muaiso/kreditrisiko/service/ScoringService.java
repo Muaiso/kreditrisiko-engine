@@ -3,6 +3,7 @@ package io.github.muaiso.kreditrisiko.service;
 import io.github.muaiso.kreditrisiko.domain.LoanApplication;
 import io.github.muaiso.kreditrisiko.domain.Rating;
 import io.github.muaiso.kreditrisiko.engine.metrics.ConfusionMatrix;
+import io.github.muaiso.kreditrisiko.engine.metrics.ConfusionMatrixBuilder;
 import io.github.muaiso.kreditrisiko.engine.metrics.KsStatistic;
 import io.github.muaiso.kreditrisiko.engine.metrics.PrCurve;
 import io.github.muaiso.kreditrisiko.engine.metrics.RocCurve;
@@ -80,14 +81,14 @@ public final class ScoringService {
         RocCurve roc = new RocCurve(scores, actual);
         PrCurve pr = new PrCurve(scores, actual);
         KsStatistic ks = new KsStatistic(scores, actual);
-        ConfusionMatrix cm = ConfusionMatrix.fromPredictions(actual, predicted);
+        ConfusionMatrix cm = ConfusionMatrixBuilder.fromLabels(actual, predicted);
 
         double gini = 2.0 * roc.auc() - 1.0;
         return new io.github.muaiso.kreditrisiko.web.EvaluationResult(
                 model.algorithmName(),
                 roc.auc(),
                 pr.prAuc(),
-                ks.statistic(),
+                ks.value(),
                 gini,
                 cm.accuracy(),
                 cm.precision(),
@@ -98,10 +99,10 @@ public final class ScoringService {
 
     private Map<String, Integer> confusionMap(ConfusionMatrix cm) {
         Map<String, Integer> m = new LinkedHashMap<>();
-        m.put("tp", cm.truePositives());
-        m.put("fp", cm.falsePositives());
-        m.put("tn", cm.trueNegatives());
-        m.put("fn", cm.falseNegatives());
+        m.put("tp", (int) cm.truePositive());
+        m.put("fp", (int) cm.falsePositive());
+        m.put("tn", (int) cm.trueNegative());
+        m.put("fn", (int) cm.falseNegative());
         return m;
     }
 
