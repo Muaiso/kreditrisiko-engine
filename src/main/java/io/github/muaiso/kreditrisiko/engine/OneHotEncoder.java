@@ -27,7 +27,10 @@ public final class OneHotEncoder {
         }
         int i = 0;
         for (String v : values) {
-            index.putIfAbsent(v, i++);
+            if (!index.containsKey(v)) {
+                index.put(v, i);
+                i++;
+            }
         }
         this.categories = List.copyOf(index.keySet());
     }
