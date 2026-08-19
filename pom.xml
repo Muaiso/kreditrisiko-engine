@@ -64,10 +64,64 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.5.6</version>
-				<configuration>
-					<reuseForks>false</reuseForks>
-					<argLine>-Xmx3072m -XX:MaxMetaspaceSize=512m</argLine>
-				</configuration>
+				<executions>
+					<execution>
+						<id>group-domain-data-web</id>
+						<phase>test</phase>
+						<goals><goal>test</goal></goals>
+						<configuration>
+							<reuseForks>true</reuseForks>
+							<forkCount>1</forkCount>
+							<argLine>-Xmx1536m -XX:MaxMetaspaceSize=256m</argLine>
+							<includes>
+								<include>io/github/muaiso/kreditrisiko/domain/**/*.java</include>
+								<include>io/github/muaiso/kreditrisiko/data/**/*.java</include>
+								<include>io/github/muaiso/kreditrisiko/web/**/*.java</include>
+								<include>io/github/muaiso/kreditrisiko/service/**/*.java</include>
+							</includes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>group-metrics</id>
+						<phase>test</phase>
+						<goals><goal>test</goal></goals>
+						<configuration>
+							<reuseForks>true</reuseForks>
+							<forkCount>1</forkCount>
+							<argLine>-Xmx1536m -XX:MaxMetaspaceSize=256m</argLine>
+							<includes>
+								<include>io/github/muaiso/kreditrisiko/engine/metrics/**/*.java</include>
+							</includes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>group-models</id>
+						<phase>test</phase>
+						<goals><goal>test</goal></goals>
+						<configuration>
+							<reuseForks>true</reuseForks>
+							<forkCount>1</forkCount>
+							<argLine>-Xmx1536m -XX:MaxMetaspaceSize=256m</argLine>
+							<includes>
+								<include>io/github/muaiso/kreditrisiko/engine/models/**/*.java</include>
+							</includes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>group-engine-rest</id>
+						<phase>test</phase>
+						<goals><goal>test</goal></goals>
+						<configuration>
+							<reuseForks>true</reuseForks>
+							<forkCount>1</forkCount>
+							<argLine>-Xmx1536m -XX:MaxMetaspaceSize=256m</argLine>
+							<includes>
+								<include>io/github/muaiso/kreditrisiko/engine/*Tests.java</include>
+								<include>io/github/muaiso/kreditrisiko/engine/validation/**/*.java</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
