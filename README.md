@@ -52,20 +52,27 @@ Diese Engine liefert:
 
 | Funktion | Beschreibung |
 |----------|--------------|
-| Domänenmodell | `Borrower`, `LoanApplication`, `CreditFeatures`, `Rating` |
+| Domänenmodell | `Borrower`, `LoanApplication`, `CreditFeatures`, `Rating`, `Exposure` (EAD/LGD/PD) |
 | Feature-Engineering | Min-Max/Standard-Normalisierung, One-Hot-Encoding, Aggregation |
 | Baseline-Modell | Haeufigkeits- und Schwellwert-Klassifikator |
 | Logistic Regression | Gradientenabstieg mit Regularisierung |
 | Decision Tree | Rekursives Splitten nach Gini/Entropy |
-| Random Forest | Bagging uer mehrere Baeume |
+| Random Forest | Bagging ueber mehrere Baeume |
 | Gaussian Naive Bayes | Klassenbedingte Gauss-Dichten |
 | Ensemble (Voting) | Kombination mehrerer Modelle |
+| Scorecard | Punkte-basierte, auditierbare Scorecard aus Logit |
 | ROC / AUC | TPR vs. FPR-Kurve und Flaeche |
 | PR / AUC | Precision-Recall-Kurve und Flaeche |
 | KS-Statistik | Max. kumulativer Abstand der Verteilungen |
 | Gini / Lift / Gain | Diskriminierungs- und Anreicherungsmass |
 | Calibration | Maechtigkeitskalibrierung (Brier, Reliability) |
 | LogLoss | Kreuzentropie der Wahrscheinlichkeiten |
+| Expected Loss | EL = EAD · LGD · PD (IRB-Kreditrisiko) |
+| Portfolio Risk | Aggregierte EL, HHI-Konzentration, Segmente |
+| SHAP-Explainer | Lokale Merkmalsbeitraege (EU-AI-Act-konform) |
+| Cost-Sensitive Threshold | Kostenoptimale Entscheidungsschwelle |
+| Population Stability Index | Modell-Drift-Monitoring (PSI) |
+| Modell-Serialisierung | JSON-Persistenz trainierter Modelle |
 | Validierung | Holdout, K-Fold, Stratified K-Fold, Bootstrap, Time-Series-Split |
 | Daten | CSV-Loader, synthetischer Generator, Balancing |
 
@@ -145,18 +152,48 @@ Trainiert ein Modell auf uebergebenen Antraegen.
 }
 ```
 
-### `POST /api/score`
+### `POST /api/score?modelId=...`
 
-Bewertet eine einzelne Anfrage und liefert PD, Rating und Ablehnungsflag.
+Bewertet eine Anfrage mit einem **registrierten** Modell (siehe `/api/models/register`).
 
 ```json
 { "age": 30, "income": 80000, "debt": 1000, "employmentYears": 5, "purpose": "CAR" }
 ```
-
 **Response:**
 ```json
 { "probability": 0.12, "rating": "A", "declined": false }
 ```
+
+### `POST /api/explain?modelId=...`
+
+Liefert die Merkmalsbeitraege zur PD (SHAP-aehnlich) – warum wurde
+abgelehnt/genehmigt?
+
+**Response:**
+```json
+{ "probability": 0.12, "baseValue": 0.30,
+  "contributions": { "age": -0.02, "income": -0.05, "debt": 0.04, "employmentYears": -0.01, "purpose": 0.0 } }
+```
+
+### `POST /api/portfolio`
+
+Bewertet ein Kreditportfolio (Expected Loss + Konzentration).
+
+```json
+{ "exposures": [ { "ead": 100000, "lgd": 0.4, "pd": 0.05, "segment": "A" },
+                 { "ead": 50000, "lgd": 0.6, "pd": 0.10, "segment": "B" } ] }
+```
+**Response:** `totalExpectedLoss`, `totalEad`, `expectedLossRate`, `weightedPd`,
+`weightedLgd`, `hhi`, `concentrationLevel`, `segmentCount`.
+
+### `POST /api/models/register?modelId=...`
+
+Trainiert ein Modell und registriert es unter `modelId` (wiederverwendbar
+fuer `/api/score` und `/api/explain`).
+
+### `POST /api/models/serialize?modelId=...`
+
+Liefert das registrierte Modell als JSON (Modell-Governance / Audit).
 
 ---
 
@@ -207,8 +244,13 @@ Schwellwerte; AUC als trapezfoermig integrierte Flaeche.
 $$ KS = \max_t |\, F^+_{\text{kum}}(t) - F^-_{\text{kum}}(t)\,| $$
 Maximaler Abstand der kumulierten Score-Verteilungen von Ausfall vs. Nicht-Ausfall.
 
-### Gini
-$$ \text{Gini} = 2 \cdot \text{AUC} - 1 $$
+### Expected Loss (IRB)
+$$ EL = EAD \cdot LGD \cdot PD $$
+Summe ueber alle Engagements; gewichtete PD/LGD je nach EAD-Anteil.
+
+### Population Stability Index (Drift)
+$$ PSI = \sum_i (Anteil_{neu,i} - Anteil_{alt,i}) \cdot \ln\frac{Anteil_{neu,i}}{Anteil_{alt,i}} $$
+PSI > 0.25 deutet auf rekalibrierungsbeduerftige Datendrift hin.
 
 ---
 
@@ -247,5 +289,7 @@ mvn verify        # Tests + JaCoCo-Coverage
 
 ## Status
 
-✅ Abgeschlossenes Portfolio-Projekt. Die Engine ist voll funktionsfaehig,
-getestet und über die REST-API nutzbar.
+✅ Portfolio-Projekt (Wirtschaftsinformatik / Banking Analytics). Die Engine ist
+funktionsfaehig, getestet und über die REST-API nutzbar. Aktive Erweiterung
+um IRB-Kreditrisiko (Expected Loss, Portfolio-Konzentration), erklaerbare
+KI (SHAP, Scorecard) und Modell-Governance (PSI, Serialisierung).
