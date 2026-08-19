@@ -16,7 +16,7 @@
 	<properties>
 		<java.version>25</java.version>
 		<junit-jupiter.version>5.11.4</junit-jupiter.version>
-		<argLine>-Xmx2048m -XX:MaxMetaspaceSize=512m</argLine>
+		<argLine>-Xmx3072m -XX:MaxMetaspaceSize=512m</argLine>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -65,8 +65,8 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.5.6</version>
 				<configuration>
-					<reuseForks>true</reuseForks>
-					<argLine>-Xmx2048m -XX:MaxMetaspaceSize=512m</argLine>
+					<reuseForks>false</reuseForks>
+					<argLine>-Xmx3072m -XX:MaxMetaspaceSize=512m</argLine>
 				</configuration>
 			</plugin>
 			<plugin>

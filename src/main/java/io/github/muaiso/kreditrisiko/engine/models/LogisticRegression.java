@@ -4,6 +4,7 @@ import io.github.muaiso.kreditrisiko.domain.LoanApplication;
 
 import io.github.muaiso.kreditrisiko.engine.FeatureAggregator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,6 +24,7 @@ public final class LogisticRegression implements CreditModel {
     private double bias;
     private boolean trained;
     private FeatureAggregator aggregator;
+    private List<String> purposes = List.of();
 
     /**
      * @param learningRate Schrittweite des Gradientenabstiegs
@@ -35,12 +37,78 @@ public final class LogisticRegression implements CreditModel {
         this.regularization = regularization;
     }
 
+    /**
+     * Rekonstruiert ein bereits trainiertes Modell aus gespeicherten
+     * Gewichten und Bias (z. B. nach {@link ModelSerializer}).
+     *
+     * @param weights die gelernten Feature-Gewichte
+     * @param bias    die gelernte Bias-Konstante
+     */
+    public LogisticRegression(double[] weights, double bias) {
+        this(0.1, 1, 0.0);
+        if (weights == null || weights.length == 0) {
+            throw new IllegalArgumentException("weights darf nicht leer sein");
+        }
+        this.weights = weights.clone();
+        this.bias = bias;
+        this.trained = true;
+    }
+
+    /**
+     * Rekonstruiert ein bereits trainiertes Modell aus gespeicherten
+     * Gewichten, Bias und den bekannten Kategorien (z. B. nach
+     * {@link io.github.muaiso.kreditrisiko.engine.ModelSerializer}).
+     *
+     * @param weights   die gelernten Feature-Gewichte
+     * @param bias      die gelernte Bias-Konstante
+     * @param purposes  die bekannten Verwendungszwecke (One-Hot-Kodierung)
+     */
+    public LogisticRegression(double[] weights, double bias, List<String> purposes) {
+        this(0.1, 1, 0.0);
+        if (weights == null || weights.length == 0) {
+            throw new IllegalArgumentException("weights darf nicht leer sein");
+        }
+        if (purposes == null || purposes.isEmpty()) {
+            throw new IllegalArgumentException("purposes darf nicht leer sein");
+        }
+        this.weights = weights.clone();
+        this.bias = bias;
+        this.purposes = List.copyOf(purposes);
+        this.aggregator = new FeatureAggregator(
+                purposes.stream()
+                        .map(p -> new LoanApplication(new io.github.muaiso.kreditrisiko.domain.CreditFeatures(30, 40000, 5000, 3, p), false))
+                        .toList());
+        this.trained = true;
+    }
+
+    /**
+     * @return die gelernte Bias-Konstante
+     */
+    public double getBias() {
+        return bias;
+    }
+
+    /**
+     * @return die bekannten Verwendungszwecke (One-Hot-Kodierung)
+     */
+    public List<String> getPurposes() {
+        return purposes;
+    }
+
     @Override
     public void train(List<LoanApplication> applications) {
         if (applications == null || applications.isEmpty()) {
             throw new IllegalArgumentException("Trainingsdaten duerfen nicht leer sein");
         }
         this.aggregator = new FeatureAggregator(applications);
+        List<String> known = new ArrayList<>();
+        for (LoanApplication a : applications) {
+            String p = a.features().purpose();
+            if (!known.contains(p)) {
+                known.add(p);
+            }
+        }
+        this.purposes = List.copyOf(known);
         int dim = aggregator.vectorSize();
         this.weights = new double[dim];
         this.bias = 0.0;
